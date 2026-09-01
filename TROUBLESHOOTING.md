@@ -38,6 +38,11 @@ sudo ls -la /var/root/Library/Caches/multipassd/qemu/vault/images/
 You will see one or more folders with dates in the name, like
 `24.04-20250115` or a long hash. Those are cached images.
 
+> The `qemu` in that path is the virtualization driver Multipass is using. On
+> an Apple Silicon Mac that is the default. Confirm yours with
+> `multipass get local.driver` and swap the folder name if it says something
+> else.
+
 **Step 2 — delete the dated folder.** Substitute the real folder name you saw:
 
 ```bash
@@ -167,7 +172,7 @@ throw it away and build a new one.
 keep out first:
 
 ```bash
-multipass transfer -r lab:/home/ubuntu/lab ./lab-backup
+multipass transfer -r -p lab:/home/ubuntu/lab ./lab-backup
 ```
 
 Then, on your Mac:
