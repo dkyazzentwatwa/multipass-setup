@@ -1,0 +1,37 @@
+name: validate
+
+# A YAML typo in lab.yaml means every student's launch fails in the middle of
+# class. This runs on every push so that never happens.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cloud-init-schema:
+    name: Validate lab.yaml
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Ensure cloud-init is available
+        run: |
+          if ! command -v cloud-init >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y cloud-init
+          fi
+          cloud-init --version
+
+      - name: Check the #cloud-config header
+        run: |
+          head -n 1 lab.yaml | grep -qx '#cloud-config' \
+            || { echo "::error file=lab.yaml,line=1::line 1 must be exactly '#cloud-config'"; exit 1; }
+
+      - name: Check lab.yaml is parseable YAML
+        run: python3 -c "import yaml,sys; yaml.safe_load(open('lab.yaml'))"
+
+      - name: cloud-init schema
+        run: cloud-init schema --config-file lab.yaml

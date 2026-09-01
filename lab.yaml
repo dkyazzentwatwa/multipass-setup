@@ -1,0 +1,110 @@
+#cloud-config
+# ---------------------------------------------------------------------------
+# Beginner Linux Lab - Ubuntu 24.04 LTS
+#
+# This file is a cloud-init config. Multipass hands it to a brand new VM on
+# its FIRST boot only. Editing this file does nothing to a VM that already
+# exists - you have to delete the VM and launch a new one.
+#
+# There are no secrets in here. It is meant to be read.
+# ---------------------------------------------------------------------------
+
+# Refresh the package index so installs below resolve. Do NOT run a full
+# upgrade: it is slow, it varies day to day, and it turns a 90-second launch
+# into a 10-minute one in the middle of class.
+package_update: true
+package_upgrade: false
+
+packages:
+  - build-essential   # gcc, make, headers - needed to compile anything
+  - git               # version control
+  - curl              # fetch things over HTTP from the command line
+  - wget              # same idea, different tool
+  - python3-pip       # install Python packages
+  - python3-venv      # isolated Python environments
+  - tmux              # keep sessions alive, split panes
+  - vim               # editor (the hard one)
+  - nano              # editor (the easy one - start here)
+  - htop              # see what is using CPU and memory
+  - tree              # print a directory as a tree
+  - jq                # read and filter JSON
+  - unzip             # open .zip files
+
+write_files:
+  # Login banner. Shown every time someone opens a shell in this VM.
+  - path: /etc/motd
+    owner: root:root
+    permissions: '0644'
+    content: |
+
+      ===========================================================
+        LINUX LAB - Ubuntu 24.04 LTS
+      ===========================================================
+
+        You are inside a virtual machine. Nothing you do in here
+        can damage the Mac it is running on.
+
+        Start here:   cat ~/README.md
+        Your work:    ~/lab
+        Leave:        exit    (the VM keeps running)
+
+        No USB devices reach this VM. Hardware work happens on
+        the host, not in here.
+
+      ===========================================================
+
+  # Student-facing notes inside the VM.
+  # defer: true waits until the ubuntu user exists before writing this file.
+  - path: /home/ubuntu/README.md
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+    defer: true
+    content: |
+      # You are inside the lab VM
+
+      This is a full Ubuntu 24.04 Linux system running on your Mac. It has
+      its own filesystem, its own users, and its own network stack. It is
+      not a simulation and it is not a website.
+
+      ## Where things are
+
+      - `~/lab` - your work goes here
+      - `~/README.md` - this file
+
+      ## Ten commands worth knowing
+
+      | Command | What it does |
+      | --- | --- |
+      | `pwd` | print the directory you are currently in |
+      | `ls -la` | list everything here, including hidden files |
+      | `cd ~/lab` | change directory to your lab folder |
+      | `mkdir notes` | make a new directory called `notes` |
+      | `nano hello.txt` | open a friendly text editor (Ctrl+O saves, Ctrl+X quits) |
+      | `cat hello.txt` | print a file to the screen |
+      | `man ls` | read the manual for a command (`q` quits) |
+      | `sudo apt install <name>` | install software |
+      | `htop` | see what is running (`q` quits) |
+      | `exit` | leave the VM shell |
+
+      ## You have real root
+
+      `sudo` works here with no password. That is on purpose. Break things,
+      then rebuild the VM. From your Mac:
+
+          multipass delete lab --purge
+          # then relaunch - see the repo README
+
+      ## What this VM cannot do
+
+      It cannot see USB devices. No ESP32 flashing, no Proxmark, no SDR,
+      no serial adapters. That work happens on macOS itself.
+
+runcmd:
+  # Anything that touches /home/ubuntu runs as the ubuntu user, never as
+  # root. Running these as root would leave root-owned files in a home
+  # directory the student cannot write to.
+  - su - ubuntu -c "mkdir -p ~/lab/projects ~/lab/scratch"
+  - su - ubuntu -c "echo 'Put your work in here. It survives reboots.' > ~/lab/README.txt"
+  - su - ubuntu -c "chmod 755 ~/lab"
+
+final_message: "Lab VM is ready after $uptime seconds. cloud-init version $version finished at $timestamp. Run: multipass shell lab"

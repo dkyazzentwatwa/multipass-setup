@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.AppleDouble
+.LSOverride
+.apdisk
+Icon?
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.\#*
+\#*\#
+.nfs*
+*.sublime-workspace
+*.sublime-project
+
+# Local scratch - students often download lab.yaml next to a clone
+lab-backup/
+*.log
